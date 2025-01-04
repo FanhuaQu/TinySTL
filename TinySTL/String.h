@@ -76,7 +76,7 @@ namespace TinySTL
         bool empty() const { return begin() == end(); }
         void resize(size_t n);
         void resize(size_t n, char c);
-        void reverse(size_t n = 0);
+        void reserve(size_t n = 0);
         void shrink_to_fit()
         {
             dataAllocator::deallocate(finish_, endOfStorage_ - finish_);
