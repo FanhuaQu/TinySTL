@@ -329,23 +329,422 @@ namespace TinySTL
         }
         return npos;
     }
-    size_t string::rfind_aux(const_iterator cit, size_t pos, size_t lengthOfS, int cond) const{
+    // 从字符串末尾开始查找子字符串，cond：搜索的起始位置
+    size_t string::rfind_aux(const_iterator cit, size_t pos, size_t lengthOfS, int cond) const
+    {
         int i, j;
-        for (i = pos + lengthOfS; i>= cond; --i){
-            for (j = 0; j != lengthOfS; ++j){
-                if(*(begin() + j+i) != cit[i]){
+        for (i = pos + lengthOfS; i >= cond; --i)
+        {
+            for (j = 0; j != lengthOfS; ++j)
+            {
+                if (*(begin() + j + i) != cit[i])
+                {
                     break;
                 }
-
             }
-            if(j == lengthOfS){
+            if (j == lengthOfS)
+            {
                 return i;
             }
         }
         return npos;
     }
+    size_t string::rfind(const string &str, size_t pos) const
+    {
+        auto lengthOfS = str.size();
+        pos = changeVarWhenEuqalNPOS(pos, size(), 1);
+        return rfind_aux(str.begin(), pos, lengthOfS, 0);
+    }
+    size_t string::rfind(const char *s, size_t pos) const
+    {
+        auto lengthOfS = strlen(s);
+        return rfind_aux(s, pos, lengthOfS, 0);
+    }
+    size_t string::rfind(const char *s, size_t pos, size_t n) const
+    {
+        auto lengthOfS = strlen(s);
+        return rfind_aux(s, pos, n, 0);
+    }
+    int string::compare(const string &str) const
+    {
+        return compare(0, size(), str, 0, str.size());
+    }
+    int string::compare(size_t pos, size_t len, const string &str) const
+    {
+        return compare(pos, len, str, 0, str.size());
+    }
+    int string::compare_aux(size_t pos, size_t len, const_iterator cit, size_t subpos, size_t sublen) const
+    {
+        size_t i, j;
+        for (i = 0, j = 0; i != len && j != sublen; +i, ++j)
+        {
+            if ((*this)[pos + i] < cit[subpos + j])
+            {
+                return -1;
+            }
+            else if ((*this)[pos + i] > cit[subpos + j])
+            {
+                return 1;
+            }
+        }
+        if (i == len && j == sublen)
+        {
+            return 0;
+        }
+        else if (i == len)
+        {
+            return -1;
+        }
+        else
+            return 1;
+    }
+    int string::compare(size_t pos, size_t len, const string &str, size_t subpos, size_t sublen) const
+    {
+        return compare_aux(pos, len, str.begin(), subpos, sublen);
+    }
+    int string::compare(const char *s) const
+    {
+        return compare(0, size(), s, strlen(s));
+    }
+    int string::compare(size_t pos, size_t len, const char *s) const
+    {
+        return compare(pos, len, s, strlen(s));
+    }
+    int string::compare(size_t pos, size_t len, const char *s, size_t n) const
+    {
+        return compare_aux(pos, len, s, 0, n);
+    }
 
-        void string::allocateAndFillN(size_t n, char c)
+    size_t string::find_first_of(const string &str, size_t pos) const
+    {
+        return find_first_of(str.begin(), pos, str.size());
+    }
+    size_t string::find_first_of(const char *s, size_t pos) const
+    {
+        return find_first_of(s, pos, strlen(s));
+    }
+    size_t string::find_first_of(const char *s, size_t pos, size_t n) const
+    {
+        for (size_t i = pos; i != size(); ++i)
+        {
+            if (isContained((*this)[i], s, s + n))
+                return i;
+        }
+    }
+    size_t string::find_first_of(char c, size_t pos) const
+    {
+        return find(c, pos);
+    }
+    size_t string::find_first_not_of(const string &str, size_t pos) const
+    {
+        return find_first_not_of(str.begin(), pos, str.size());
+    }
+    size_t string::find_first_not_of(const char *s, size_t pos) const
+    {
+        return find_first_not_of(s, pos, strlen(s));
+    }
+    size_t string::find_first_not_of(const char *s, size_t pos, size_t n) const
+    {
+        for (size_t i = pos; i != size(); ++i)
+        {
+            if (!isContained((*this)[i], s, s + n))
+                return i;
+        }
+        return npos;
+    }
+    size_t string::find_first_not_of(char c, size_t pos) const
+    {
+        for (size_t i = pos; i != size(); ++i)
+        {
+            if ((*this)[i] != c)
+                return i;
+        }
+        return npos;
+    }
+    size_t string::find_last_of(const string &str, size_t pos) const
+    {
+        pos = changeVarWhenEuqalNPOS(pos, size(), 1);
+        return find_last_of(str.begin(), pos, str.size());
+    }
+    size_t string::find_last_of(const char *s, size_t pos) const
+    {
+        pos = changeVarWhenEuqalNPOS(pos, size(), 1);
+        return find_last_of(s, pos, strlen(s));
+    }
+    size_t string::find_last_of(const char *s, size_t pos, size_t n) const
+    {
+        for (size_t i = pos; i > 0; --i)
+        {
+            if (isContained((*this)[i], s, s + n))
+                return i;
+        }
+        return npos;
+    }
+    size_t string::find_last_of(char c, size_t pos) const
+    {
+        return rfind(c, pos);
+    }
+    size_t string::find_last_not_of(const string &str, size_t pos) const
+    {
+        pos = changeVarWhenEuqalNPOS(pos, size(), 1);
+        return find_last_not_of(str.begin(), pos, str.size());
+    }
+    size_t string::find_last_not_of(const char *s, size_t pos) const
+    {
+        pos = changeVarWhenEuqalNPOS(pos, size(), 1);
+        return find_last_not_of(s, pos, strlen(s));
+    }
+    size_t string::find_last_not_of(const char *s, size_t pos, size_t n) const
+    {
+        for (size_t i = pos; i >= 0; --i)
+        {
+            if (!isContained((*this)[i], s, s + n))
+                return i;
+        }
+        return npos;
+    }
+    size_t string::find_last_not_of(char c, size_t pos) const
+    {
+        pos = changeVarWhenEuqalNPOS(pos, size(), 1);
+        for (int i = pos; i >= 0; --i)
+        {
+            if ((*this)[i] != c)
+                return i;
+        }
+        return npos;
+    }
+    std::ostream &operator<<(std::ostream &os, const string &str)
+    {
+        for (const auto ch : str)
+        {
+            os << ch;
+        }
+        return os;
+    }
+    std::istream &operator>>(std::istream &is, string &str)
+    {
+        char ch;
+        string::size_type oldSize = str.size(), index = 0;
+        bool hasPrevBlank = false;
+        while (is.get(ch))
+        {
+            if (isblank(ch) || ch == '\n')
+                hasPrevBlank = true;
+            else
+                break;
+        }
+        is.putback(ch);
+        str.clear();
+        while (is.get(ch))
+        {
+            if (ch != EOF && !isblank(ch) && ch != '\n')
+            {
+                str.push_back(ch);
+            }
+            else
+                break;
+        }
+        return is;
+    }
+    std::istream &getline(std::istream &is, string &str, char delim)
+    {
+        char ch;
+        str.clear();
+        while (is.get(ch))
+        {
+            if (ch == delim)
+                break;
+            else
+                str.push_back(ch);
+        }
+        return is;
+    }
+    std::istream &getline(std::istream &is, string &str)
+    {
+        return getline(is, str, '\n');
+    }
+    string operator+(const string &lhs, const string &rhs)
+    {
+        string res(lhs);
+        return res += rhs;
+    }
+    string operator+(const string &lhs, const char *rhs)
+    {
+        string res(lhs);
+        return res += rhs;
+    }
+    string operator+(const char *lhs, const string &rhs)
+    {
+        string res(lhs);
+        return res += rhs;
+    }
+    string operator+(const string &lhs, char rhs)
+    {
+        string res(lhs);
+        return res += rhs;
+    }
+    string operator+(char lhs, const string &rhs)
+    {
+        string res(1, lhs);
+        return res += rhs;
+    }
+    bool operator==(const string &lhs, const string &rhs)
+    {
+        if (lhs.size() == rhs.size())
+        {
+            for (auto cit1 = lhs.cbegin(), cit2 = rhs.cbegin();
+                 cit1 != lhs.cend() && cit2 != rhs.cend();
+                 ++cit1, ++cit2)
+            {
+                if (*cit1 != *cit2)
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    bool operator==(const char *lhs, const string &rhs)
+    {
+        return rhs == lhs;
+    }
+    bool operator==(const string &lhs, const char *rhs)
+    {
+        size_t len = strlen(rhs);
+        if (lhs.size() == len)
+        {
+            const char *p = rhs;
+            for (string::const_iterator cit = lhs.cbegin();
+                 cit != lhs.cend() && p != rhs + len;
+                 ++cit, ++p)
+            {
+                if (*cit != *p)
+                    return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    bool operator!=(const string &lhs, const string &rhs)
+    {
+        return !(lhs == rhs);
+    }
+    bool operator!=(const char *lhs, const string &rhs)
+    {
+        return !(lhs == rhs);
+    }
+    bool operator!=(const string &lhs, const char *rhs)
+    {
+        return !(lhs == rhs);
+    }
+    bool operator<(const string &lhs, const string &rhs)
+    {
+        return !(lhs >= rhs);
+    }
+    bool operator<(const char *lhs, const string &rhs)
+    {
+        return !(lhs >= rhs);
+    }
+    bool operator<(const string &lhs, const char *rhs)
+    {
+        return !(lhs >= rhs);
+    }
+
+    namespace
+    {
+        template <class Iterator1, class Iterator2>
+        bool lessEqual_aux(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
+        {
+            for (; first1 != last1 && first2 != last2; ++first1, ++first2)
+            {
+                if (*first1 < *first2)
+                    return true;
+                else if (*first1 > *first2)
+                    return false;
+            }
+            if ((first1 == last1 && first2 == last2) // ==
+                || (first1 == last1))                // <
+                return true;
+            else
+                return false;
+        }
+    }
+    bool operator<=(const string &lhs, const string &rhs)
+    {
+        return lessEqual_aux(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
+    }
+    bool operator<=(const char *lhs, const string &rhs)
+    {
+        return lessEqual_aux(lhs, lhs + strlen(lhs), rhs.cbegin(), rhs.cend());
+    }
+    bool operator<=(const string &lhs, const char *rhs)
+    {
+        return lessEqual_aux(lhs.cbegin(), lhs.cend(), rhs, rhs + strlen(rhs));
+    }
+    bool operator>(const string &lhs, const string &rhs)
+    {
+        return !(lhs <= rhs);
+    }
+    bool operator>(const char *lhs, const string &rhs)
+    {
+        return !(lhs <= rhs);
+    }
+    bool operator>(const string &lhs, const char *rhs)
+    {
+        return !(lhs <= rhs);
+    }
+
+    namespace
+    {
+        template <class Iterator1, class Iterator2>
+        bool greaterEqual_aux(Iterator1 first1, Iterator1 last1, Iterator2 first2, Iterator2 last2)
+        {
+            for (; first1 != last1 && first2 != last2; ++first1, ++first2)
+            {
+                if (*first1 > *first2)
+                    return true;
+                else if (*first1 < *first2)
+                    return false;
+            }
+            if ((first1 == last1 && first2 == last2) // ==
+                || (first2 == last2))                // >
+                return true;
+            else
+                return false;
+        }
+    }
+    bool operator>=(const string &lhs, const string &rhs)
+    {
+        return greaterEqual_aux(lhs.cbegin(), lhs.cend(), rhs.cbegin(), rhs.cend());
+    }
+    bool operator>=(const char *lhs, const string &rhs)
+    {
+        return greaterEqual_aux(lhs, lhs + strlen(lhs), rhs.cbegin(), rhs.cend());
+    }
+    bool operator>=(const string &lhs, const char *rhs)
+    {
+        return greaterEqual_aux(lhs.cbegin(), lhs.cend(), rhs, rhs + strlen(rhs));
+    }
+    void swap(string &x, string &y)
+    {
+        x.swap(y);
+    }
+
+    void string::moveData(string &str)
+    {
+        start_ = str.start_;
+        finish_ = str.finish_;
+        endOfStorage_ = str.endOfStorage_;
+        str.start_ = str.finish_ = str.endOfStorage_ = 0;
+    }
+    string::size_type string::getNewCapacity(size_type len) const
+    {
+        size_type oldCapacity = endOfStorage_ - start_;
+        auto res = TinySTL::max(oldCapacity, len);
+        auto newCapacity = oldCapacity + res;
+        return newCapacity;
+    }
+
+    void string::allocateAndFillN(size_t n, char c)
     {
         start_ = dataAllocator::allocate(n);
         finish_ = TinySTL::uninitialized_fill_n(start_, n, c);
@@ -361,4 +760,17 @@ namespace TinySTL
         dataAllocator::deallocate(start_, endOfStorage_ - start_); // 回收内存
     }
 
+    bool string::isContained(char ch, const_iterator first, const_iterator last) const
+    {
+        for (auto cit = first; cit != last; ++cit)
+        {
+            if (*cit == ch)
+                return true;
+        }
+        return false;
+    }
+    size_t string::changeVarWhenEuqalNPOS(size_t var, size_t minuend, size_t minue) const
+    {
+        return (var == npos ? minuend - minue : var);
+    }
 }
