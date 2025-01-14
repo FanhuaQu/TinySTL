@@ -1,4 +1,4 @@
-#include "../String.h"
+#include "String.h"
 
 #include <iostream>
 
@@ -110,6 +110,7 @@ namespace TinySTL
     string &string::insert(size_t pos, const string &str)
     {
         insert(start_ + pos, str.begin(), str.end());
+        return *this;
     }
     string &string::insert(size_t pos, const string &str, size_t subpos, size_t sublen)
     {
@@ -214,7 +215,7 @@ namespace TinySTL
     string::iterator string::erase(iterator first, iterator last)
     {
         size_t lengthOfMove = finish_ - last;
-        for (auto i = 0; i != lengthOfMove; ++i)
+        for (size_t i = 0; i != lengthOfMove; ++i)
         {
             *(first + i) = *(last + i);
         }
@@ -293,7 +294,7 @@ namespace TinySTL
     size_t string::find(const char *s, size_t pos, size_t n) const
     { // 在区间pos~pos+n中查找子串s
         size_t lengthOfS = strlen(s);
-        return find_aux(s, pos, lengthOfS, pos + n);
+        return find_aux(s, pos, n, size());
     }
     size_t string::find(const string &str, size_t pos) const
     {
@@ -332,12 +333,12 @@ namespace TinySTL
     // 从字符串末尾开始查找子字符串，cond：搜索的起始位置
     size_t string::rfind_aux(const_iterator cit, size_t pos, size_t lengthOfS, int cond) const
     {
-        int i, j;
+        size_t i, j;
         for (i = pos + lengthOfS; i >= cond; --i)
         {
             for (j = 0; j != lengthOfS; ++j)
             {
-                if (*(begin() + j + i) != cit[i])
+                if (*(begin() + j + i) != cit[j])
                 {
                     break;
                 }
@@ -357,12 +358,12 @@ namespace TinySTL
     }
     size_t string::rfind(const char *s, size_t pos) const
     {
-        auto lengthOfS = strlen(s);
-        return rfind_aux(s, pos, lengthOfS, 0);
+        pos = changeVarWhenEuqalNPOS(pos, size(), 1);
+        return rfind(s, pos, strlen(s));
     }
     size_t string::rfind(const char *s, size_t pos, size_t n) const
     {
-        auto lengthOfS = strlen(s);
+        size_t lengthOfS = strlen(s);
         return rfind_aux(s, pos, n, 0);
     }
     int string::compare(const string &str) const
@@ -376,7 +377,7 @@ namespace TinySTL
     int string::compare_aux(size_t pos, size_t len, const_iterator cit, size_t subpos, size_t sublen) const
     {
         size_t i, j;
-        for (i = 0, j = 0; i != len && j != sublen; +i, ++j)
+        for (i = 0, j = 0; i != len && j != sublen; ++i, ++j)
         {
             if ((*this)[pos + i] < cit[subpos + j])
             {
@@ -430,6 +431,7 @@ namespace TinySTL
             if (isContained((*this)[i], s, s + n))
                 return i;
         }
+        return npos;
     }
     size_t string::find_first_of(char c, size_t pos) const
     {
@@ -524,7 +526,7 @@ namespace TinySTL
     std::istream &operator>>(std::istream &is, string &str)
     {
         char ch;
-        string::size_type oldSize = str.size(), index = 0;
+        // string::size_type index = 0;
         bool hasPrevBlank = false;
         while (is.get(ch))
         {
@@ -736,7 +738,7 @@ namespace TinySTL
         endOfStorage_ = str.endOfStorage_;
         str.start_ = str.finish_ = str.endOfStorage_ = 0;
     }
-    string::size_type string::getNewCapacity(size_type len) const
+    string::size_type string::getNewCapacity(size_type len) const  // 根据要插入的元素数量（last - first）计算新的容量
     {
         size_type oldCapacity = endOfStorage_ - start_;
         auto res = TinySTL::max(oldCapacity, len);
