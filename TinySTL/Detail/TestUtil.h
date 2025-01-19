@@ -22,7 +22,7 @@ namespace TinySTL
         }
 
         template <class Container1, class Container2>
-        bool container_equal(const Container1 &con1, const Container2 &con2)
+        bool container_equal(Container1 &con1, Container2 &con2)
         {
             auto first1 = std::begin(con1), last1 = std::end(con1);
             auto first2 = std::begin(con2), last2 = std::end(con2);
