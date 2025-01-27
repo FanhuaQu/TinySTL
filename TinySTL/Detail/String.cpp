@@ -738,7 +738,7 @@ namespace TinySTL
         endOfStorage_ = str.endOfStorage_;
         str.start_ = str.finish_ = str.endOfStorage_ = 0;
     }
-    string::size_type string::getNewCapacity(size_type len) const  // 根据要插入的元素数量（last - first）计算新的容量
+    string::size_type string::getNewCapacity(size_type len) const // 根据要插入的元素数量（last - first）计算新的容量
     {
         size_type oldCapacity = endOfStorage_ - start_;
         auto res = TinySTL::max(oldCapacity, len);
@@ -775,4 +775,4 @@ namespace TinySTL
     {
         return (var == npos ? minuend - minue : var);
     }
-}
+} // namespace TinySTL
